@@ -28,9 +28,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Copy to clipboard functionality
-    document.querySelectorAll('.copy-btn').forEach(button => {
+    document.querySelectorAll('.copy-btn, .copy-example').forEach(button => {
         button.addEventListener('click', async function() {
-            const textToCopy = this.getAttribute('data-copy');
+            let textToCopy = this.getAttribute('data-copy');
+
+            // Decode HTML entities
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = textToCopy;
+            textToCopy = tempDiv.textContent || tempDiv.innerText || '';
 
             try {
                 await navigator.clipboard.writeText(textToCopy);
@@ -49,29 +54,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Failed to copy text: ', err);
 
                 // Fallback for older browsers
-                const textArea = document.createElement('textarea');
-                textArea.value = textToCopy;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
+                try {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = textToCopy;
+                    textArea.style.position = 'fixed';
+                    textArea.style.opacity = '0';
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
 
-                // Visual feedback
-                const originalText = this.textContent;
-                this.textContent = 'Copied!';
-                this.style.background = 'rgba(16, 185, 129, 0.3)';
+                    // Visual feedback
+                    const originalText = this.textContent;
+                    this.textContent = 'Copied!';
+                    this.style.background = 'rgba(16, 185, 129, 0.3)';
 
-                setTimeout(() => {
-                    this.textContent = originalText;
-                    this.style.background = 'rgba(255, 255, 255, 0.1)';
-                }, 2000);
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.background = 'rgba(255, 255, 255, 0.1)';
+                    }, 2000);
+                } catch (fallbackErr) {
+                    console.error('Fallback copy failed: ', fallbackErr);
+                    // Show error message to user
+                    const originalText = this.textContent;
+                    this.textContent = 'Copy failed';
+                    this.style.background = 'rgba(239, 68, 68, 0.3)';
+
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.background = 'rgba(255, 255, 255, 0.1)';
+                    }, 2000);
+                }
             }
         });
     });
 
     // Header background on scroll
     const header = document.querySelector('.header');
-    let lastScrollTop = 0;
 
     window.addEventListener('scroll', function() {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -83,8 +102,6 @@ document.addEventListener('DOMContentLoaded', function() {
             header.style.background = 'rgba(255, 255, 255, 0.95)';
             header.style.boxShadow = 'none';
         }
-
-        lastScrollTop = scrollTop;
     });
 
     // Intersection Observer for animations
@@ -108,20 +125,6 @@ document.addEventListener('DOMContentLoaded', function() {
         el.style.transform = 'translateY(20px)';
         el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(el);
-    });
-
-    // Syntax highlighting for code blocks (simple)
-    document.querySelectorAll('code').forEach(block => {
-        let html = block.innerHTML;
-
-        // Simple Zig syntax highlighting
-        html = html.replace(/\b(const|var|fn|pub|try|defer|if|else|while|for|switch|struct|enum|union|error|anyerror|void|u8|u16|u32|u64|i8|i16|i32|i64|f32|f64|bool|usize|isize)\b/g, '<span style="color: #f59e0b;">$1</span>');
-        html = html.replace(/\b(std|@import|@as|@intCast|@floatCast)\b/g, '<span style="color: #8b5cf6;">$1</span>');
-        html = html.replace(/"([^"]*)"/g, '<span style="color: #10b981;">"$1"</span>');
-        html = html.replace(/\/\/.*$/gm, '<span style="color: #6b7280;">$&</span>');
-        html = html.replace(/\b(\d+)\b/g, '<span style="color: #f97316;">$1</span>');
-
-        block.innerHTML = html;
     });
 
     // Add loading animation

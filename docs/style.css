@@ -243,6 +243,75 @@ body {
     color: #e5e7eb;
 }
 
+/* Syntax highlighting integration */
+.code-window pre,
+.code-block pre,
+.method-signature pre {
+    background: var(--bg-dark) !important;
+    margin: 0;
+    padding: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-x: auto;
+}
+
+.code-window code,
+.code-block code,
+.method-signature code,
+pre code {
+    background: transparent !important;
+    color: #e5e7eb;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    line-height: 1.6;
+    display: block;
+}
+
+/* Override highlight.js theme for consistency */
+.hljs {
+    background: var(--bg-dark) !important;
+    color: #e5e7eb !important;
+}
+
+/* Custom Zig syntax colors to match our theme */
+.hljs-keyword,
+.hljs-built_in,
+.hljs-type {
+    color: #f59e0b !important; /* Orange for keywords */
+}
+
+.hljs-string,
+.hljs-title.class_,
+.hljs-title.function_ {
+    color: #10b981 !important; /* Green for strings */
+}
+
+.hljs-comment {
+    color: #6b7280 !important; /* Gray for comments */
+    font-style: italic;
+}
+
+.hljs-number,
+.hljs-literal {
+    color: #f97316 !important; /* Orange for numbers */
+}
+
+.hljs-variable,
+.hljs-params {
+    color: #e5e7eb !important; /* Light gray for variables */
+}
+
+.hljs-function,
+.hljs-title {
+    color: #60a5fa !important; /* Blue for functions */
+}
+
+.hljs-attr,
+.hljs-attribute {
+    color: #fbbf24 !important; /* Yellow for attributes */
+}
+
 /* Features Section */
 .features {
     padding: 4rem 0;

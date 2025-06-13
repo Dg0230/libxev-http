@@ -10,6 +10,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
+    <!-- Syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="zig-highlight.js"></script>
     <style>
         .examples-content {
             padding: 6rem 0 4rem;
@@ -68,6 +72,14 @@
             font-size: 0.875rem;
             line-height: 1.6;
             color: #e5e7eb;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .example-code code {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            display: block;
         }
 
         .copy-example {
@@ -203,9 +215,9 @@ fn userHandler(ctx: *libxev_http.Context) !void {
         &quot;{\&quot;user_id\&quot;:\&quot;{s}\&quot;,\&quot;name\&quot;:\&quot;User {s}\&quot;}&quot;, .{ user_id, user_id });
     defer ctx.allocator.free(response);
     try ctx.json(response);
-}">Copy</button>
+}">Copy
                 </div>
-                <pre><code>const std = @import("std");
+                <pre><code class="language-zig">const std = @import("std");
 const libxev_http = @import("libxev-http");
 
 pub fn main() !void {
@@ -370,9 +382,9 @@ fn protectedHandler(ctx: *libxev_http.Context) !void {
 
 fn adminHandler(ctx: *libxev_http.Context) !void {
     try ctx.json(&quot;{\&quot;message\&quot;:\&quot;Admin panel\&quot;,\&quot;privileges\&quot;:\&quot;full\&quot;}&quot;);
-}">Copy</button>
+}">Copy
                 </div>
-                <pre><code>const std = @import("std");
+                <pre><code class="language-zig">const std = @import("std");
 const libxev_http = @import("libxev-http");
 
 pub fn main() !void {
@@ -495,15 +507,15 @@ fn errorHandlerMiddleware(ctx: *libxev_http.Context, next: libxev_http.NextFn) !
         std.log.err(&quot;Request error: {}&quot;, .{err});
 
         switch (err) {
-            libxev_http.HttpError.RequestTooLarge => {
+            libxev_http.HttpError.RequestTooLarge =&gt; {
                 ctx.status(.payload_too_large);
                 try ctx.json(&quot;{\&quot;error\&quot;:\&quot;Request too large\&quot;,\&quot;code\&quot;:413}&quot;);
             },
-            libxev_http.HttpError.Timeout => {
+            libxev_http.HttpError.Timeout =&gt; {
                 ctx.status(.request_timeout);
                 try ctx.json(&quot;{\&quot;error\&quot;:\&quot;Request timeout\&quot;,\&quot;code\&quot;:408}&quot;);
             },
-            else => {
+            else =&gt; {
                 ctx.status(.internal_server_error);
                 try ctx.json(&quot;{\&quot;error\&quot;:\&quot;Internal server error\&quot;,\&quot;code\&quot;:500}&quot;);
             },
@@ -589,9 +601,9 @@ fn notFoundHandler(ctx: *libxev_http.Context) !void {
         .{path});
     defer ctx.allocator.free(response);
     try ctx.json(response);
-}">Copy</button>
+}">Copy
                 </div>
-                <pre><code>const std = @import("std");
+                <pre><code class="language-zig">const std = @import("std");
 const libxev_http = @import("libxev-http");
 
 pub fn main() !void {
@@ -739,9 +751,9 @@ curl -X GET http://localhost:8080/static/css/style.css
 # 404 test
 curl -X GET http://localhost:8080/nonexistent
 
-echo -e &quot;\nAll tests completed!&quot;">Copy</button>
+echo -e &quot;\nAll tests completed!&quot;">Copy
                 </div>
-                <pre><code>#!/bin/bash
+                <pre><code class="language-bash">#!/bin/bash
 
 # Test basic endpoints
 echo "Testing basic endpoints..."
@@ -854,5 +866,6 @@ echo -e "\nAll tests completed!"</code></pre>
     </footer>
 
     <script src="script.js"></script>
+
 </body>
 </html>

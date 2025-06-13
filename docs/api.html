@@ -10,6 +10,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
+    <!-- Syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="zig-highlight.js"></script>
     <style>
         .api-content {
             padding: 6rem 0 4rem;
@@ -46,13 +50,29 @@
         }
 
         .method-signature {
-            font-family: 'JetBrains Mono', monospace;
             background: var(--bg-dark);
-            color: #e5e7eb;
             padding: 1rem;
             border-radius: 0.5rem;
             margin: 0.5rem 0;
             overflow-x: auto;
+        }
+
+        .method-signature pre {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .method-signature code {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            color: #e5e7eb;
+            background: transparent;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            display: block;
+            line-height: 1.6;
         }
 
         .parameter-list {
@@ -156,7 +176,7 @@
                 <h3>createServer</h3>
                 <p>Creates a new HTTP server with default configuration.</p>
                 <div class="method-signature">
-                    <code>pub fn createServer(allocator: std.mem.Allocator, host: []const u8, port: u16) !*HttpServer</code>
+                    <pre><code class="language-zig">pub fn createServer(allocator: std.mem.Allocator, host: []const u8, port: u16) !*HttpServer</code></pre>
                 </div>
                 <div class="parameter-list">
                     <div class="parameter">
@@ -181,7 +201,7 @@
                 <h3>createServerWithConfig</h3>
                 <p>Creates a new HTTP server with custom configuration.</p>
                 <div class="method-signature">
-                    <code>pub fn createServerWithConfig(allocator: std.mem.Allocator, host: []const u8, port: u16, config: HttpConfig) !*HttpServer</code>
+                    <pre><code class="language-zig">pub fn createServerWithConfig(allocator: std.mem.Allocator, host: []const u8, port: u16, config: HttpConfig) !*HttpServer</code></pre>
                 </div>
                 <div class="parameter-list">
                     <div class="parameter">
@@ -196,7 +216,7 @@
                 <h3>listen</h3>
                 <p>Starts the server and begins accepting connections.</p>
                 <div class="method-signature">
-                    <code>pub fn listen(self: *HttpServer) !void</code>
+                    <pre><code class="language-zig">pub fn listen(self: *HttpServer) !void</code></pre>
                 </div>
             </div>
 
@@ -204,7 +224,7 @@
                 <h3>deinit</h3>
                 <p>Cleans up server resources.</p>
                 <div class="method-signature">
-                    <code>pub fn deinit(self: *HttpServer) void</code>
+                    <pre><code class="language-zig">pub fn deinit(self: *HttpServer) void</code></pre>
                 </div>
             </div>
         </section>
@@ -216,10 +236,10 @@
                 <h3>get / post / put / delete</h3>
                 <p>Register route handlers for different HTTP methods.</p>
                 <div class="method-signature">
-                    <code>pub fn get(self: *HttpServer, path: []const u8, handler: HandlerFn) !*Route
+                    <pre><code class="language-zig">pub fn get(self: *HttpServer, path: []const u8, handler: HandlerFn) !*Route
 pub fn post(self: *HttpServer, path: []const u8, handler: HandlerFn) !*Route
 pub fn put(self: *HttpServer, path: []const u8, handler: HandlerFn) !*Route
-pub fn delete(self: *HttpServer, path: []const u8, handler: HandlerFn) !*Route</code>
+pub fn delete(self: *HttpServer, path: []const u8, handler: HandlerFn) !*Route</code></pre>
                 </div>
                 <div class="parameter-list">
                     <div class="parameter">
@@ -249,23 +269,23 @@ pub fn delete(self: *HttpServer, path: []const u8, handler: HandlerFn) !*Route</
             <div class="api-method">
                 <h3>Request Information</h3>
                 <div class="method-signature">
-                    <code>pub fn getMethod(self: *Context) []const u8
+                    <pre><code class="language-zig">pub fn getMethod(self: *Context) []const u8
 pub fn getPath(self: *Context) []const u8
 pub fn getBody(self: *Context) ?[]const u8
 pub fn getHeader(self: *Context, name: []const u8) ?[]const u8
-pub fn getParam(self: *Context, name: []const u8) ?[]const u8</code>
+pub fn getParam(self: *Context, name: []const u8) ?[]const u8</code></pre>
                 </div>
             </div>
 
             <div class="api-method">
                 <h3>Response Helpers</h3>
                 <div class="method-signature">
-                    <code>pub fn status(self: *Context, code: HttpStatus) void
+                    <pre><code class="language-zig">pub fn status(self: *Context, code: HttpStatus) void
 pub fn json(self: *Context, data: []const u8) !void
 pub fn html(self: *Context, content: []const u8) !void
 pub fn text(self: *Context, content: []const u8) !void
 pub fn setHeader(self: *Context, name: []const u8, value: []const u8) !void
-pub fn redirect(self: *Context, location: []const u8, status_code: HttpStatus) !void</code>
+pub fn redirect(self: *Context, location: []const u8, status_code: HttpStatus) !void</code></pre>
                 </div>
             </div>
 
@@ -287,7 +307,7 @@ pub fn redirect(self: *Context, location: []const u8, status_code: HttpStatus) !
                 <h3>use (Global Middleware)</h3>
                 <p>Add middleware that applies to all routes.</p>
                 <div class="method-signature">
-                    <code>pub fn use(self: *HttpServer, name: []const u8, middleware: MiddlewareFn) !void</code>
+                    <pre><code class="language-zig">pub fn use(self: *HttpServer, name: []const u8, middleware: MiddlewareFn) !void</code></pre>
                 </div>
             </div>
 
@@ -295,7 +315,7 @@ pub fn redirect(self: *Context, location: []const u8, status_code: HttpStatus) !
                 <h3>Route.use (Route-specific Middleware)</h3>
                 <p>Add middleware to a specific route.</p>
                 <div class="method-signature">
-                    <code>pub fn use(self: *Route, name: []const u8, middleware: MiddlewareFn) !void</code>
+                    <pre><code class="language-zig">pub fn use(self: *Route, name: []const u8, middleware: MiddlewareFn) !void</code></pre>
                 </div>
             </div>
 
@@ -314,7 +334,7 @@ pub fn redirect(self: *Context, location: []const u8, status_code: HttpStatus) !
                 <h3>Custom Middleware</h3>
                 <p>Middleware function signature:</p>
                 <div class="method-signature">
-                    <code>fn customMiddleware(ctx: *Context, next: NextFn) anyerror!void {
+                    <pre><code class="language-zig">fn customMiddleware(ctx: *Context, next: NextFn) anyerror!void {
     // Pre-processing
     try ctx.setHeader("X-Custom", "value");
 
@@ -322,7 +342,7 @@ pub fn redirect(self: *Context, location: []const u8, status_code: HttpStatus) !
     try next(ctx);
 
     // Post-processing (optional)
-}</code>
+}</code></pre>
                 </div>
             </div>
         </section>
@@ -333,7 +353,7 @@ pub fn redirect(self: *Context, location: []const u8, status_code: HttpStatus) !
             <div class="api-method">
                 <h3>HttpConfig</h3>
                 <div class="method-signature">
-                    <code>pub const HttpConfig = struct {
+                    <pre><code class="language-zig">pub const HttpConfig = struct {
     connection_timeout_ms: u32 = 30000,
     request_timeout_ms: u32 = 30000,
     header_timeout_ms: u32 = 10000,
@@ -344,16 +364,16 @@ pub fn redirect(self: *Context, location: []const u8, status_code: HttpStatus) !
     enable_request_validation: bool = true,
     enable_timeout_protection: bool = true,
     enable_keep_alive: bool = true,
-};</code>
+};</code></pre>
                 </div>
             </div>
 
             <h3>Preset Configurations</h3>
             <div class="api-method">
                 <div class="method-signature">
-                    <code>pub fn development() HttpConfig  // Relaxed timeouts, detailed logging
+                    <pre><code class="language-zig">pub fn development() HttpConfig  // Relaxed timeouts, detailed logging
 pub fn production() HttpConfig   // Balanced settings
-pub fn testing() HttpConfig      // Fast timeouts, small limits</code>
+pub fn testing() HttpConfig      // Fast timeouts, small limits</code></pre>
                 </div>
             </div>
         </section>
@@ -380,14 +400,14 @@ pub fn testing() HttpConfig      // Fast timeouts, small limits</code>
             <div class="api-method">
                 <h3>Security Configuration Example</h3>
                 <div class="method-signature">
-                    <code>const secure_config = HttpConfig{
+                    <pre><code class="language-zig">const secure_config = HttpConfig{
     .connection_timeout_ms = 10000,       // 10 seconds
     .header_timeout_ms = 3000,            // 3 seconds
     .body_timeout_ms = 5000,              // 5 seconds
     .max_request_size = 256 * 1024,       // 256KB
     .max_body_size = 1024 * 1024,         // 1MB
     .enable_keep_alive = false,           // Disable keep-alive
-};</code>
+};</code></pre>
                 </div>
             </div>
         </section>
@@ -398,7 +418,7 @@ pub fn testing() HttpConfig      // Fast timeouts, small limits</code>
             <div class="api-method">
                 <h3>Common Error Types</h3>
                 <div class="method-signature">
-                    <code>pub const HttpError = error{
+                    <pre><code class="language-zig">pub const HttpError = error{
     InvalidRequest,
     RequestTooLarge,
     HeaderTooLarge,
@@ -406,14 +426,14 @@ pub fn testing() HttpConfig      // Fast timeouts, small limits</code>
     Timeout,
     ConnectionClosed,
     OutOfMemory,
-};</code>
+};</code></pre>
                 </div>
             </div>
 
             <div class="api-method">
                 <h3>Error Handler Example</h3>
                 <div class="method-signature">
-                    <code>fn errorHandler(ctx: *Context, err: anyerror) !void {
+                    <pre><code class="language-zig">fn errorHandler(ctx: *Context, err: anyerror) !void {
     switch (err) {
         HttpError.RequestTooLarge => {
             ctx.status(.payload_too_large);
@@ -428,7 +448,7 @@ pub fn testing() HttpConfig      // Fast timeouts, small limits</code>
             try ctx.json("{\"error\":\"Internal server error\"}");
         },
     }
-}</code>
+}</code></pre>
                 </div>
             </div>
         </section>
@@ -464,5 +484,6 @@ pub fn testing() HttpConfig      // Fast timeouts, small limits</code>
     </footer>
 
     <script src="script.js"></script>
+
 </body>
 </html>
