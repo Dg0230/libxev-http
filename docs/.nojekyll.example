@@ -1,0 +1,9 @@
+# This file can be renamed to .nojekyll to bypass Jekyll processing
+#
+# If you want to deploy static HTML files without Jekyll processing:
+# 1. Rename this file to .nojekyll
+# 2. Remove or rename _config.yml and Gemfile
+# 3. GitHub Pages will serve the HTML files directly
+#
+# This is useful if you want to use a different static site generator
+# or serve plain HTML files without any processing.

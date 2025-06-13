@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>libxev-http - High-Performance Async HTTP Framework for Zig</title>
+    <meta name="description" content="A high-performance async HTTP framework for Zig built on top of libxev with built-in protection and middleware support.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <span class="logo">⚡</span>
+                    <span class="brand-text">libxev-http</span>
+                </div>
+                <div class="nav-links">
+                    <a href="#features">Features</a>
+                    <a href="#quickstart">Quick Start</a>
+                    <a href="api.html">API</a>
+                    <a href="examples.html">Examples</a>
+                    <a href="https://github.com/dg0230/libxev-http" class="github-link">GitHub</a>
+                </div>
+                <button class="nav-toggle" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        High-Performance Async HTTP Framework for
+                        <span class="highlight">Zig</span>
+                    </h1>
+                    <p class="hero-description">
+                        Built on top of libxev for maximum performance and scalability.
+                        Features advanced routing, middleware support, and comprehensive built-in protection.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="#quickstart" class="btn btn-primary">Get Started</a>
+                        <a href="https://github.com/dg0230/libxev-http" class="btn btn-secondary">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                            View on GitHub
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-code">
+                    <div class="code-window">
+                        <div class="code-header">
+                            <div class="code-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            <span class="code-title">main.zig</span>
+                        </div>
+                        <pre><code class="language-zig">const std = @import("std");
+const libxev_http = @import("libxev-http");
+
+pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    // Create HTTP server
+    var server = try libxev_http.createServer(
+        allocator, "127.0.0.1", 8080
+    );
+    defer server.deinit();
+
+    // Add middleware
+    try server.use("logging", libxev_http.loggingMiddleware);
+    try server.use("cors", libxev_http.corsMiddleware);
+
+    // Set up routes
+    _ = try server.get("/", indexHandler);
+    _ = try server.get("/api/status", statusHandler);
+    _ = try server.get("/users/:id", userHandler);
+
+    // Start listening
+    try server.listen();
+}
+
+fn indexHandler(ctx: *libxev_http.Context) !void {
+    try ctx.html("&lt;h1&gt;Hello, libxev-http!&lt;/h1&gt;");
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <div class="container">
+                <h2 class="section-title">Why Choose libxev-http?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Async Event-Driven</h3>
+                        <p>Built on libxev for maximum performance and scalability across all platforms</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🛣️</div>
+                        <h3>Advanced Routing</h3>
+                        <p>Parameter extraction, wildcards, and flexible middleware support</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔧</div>
+                        <h3>Flexible Middleware</h3>
+                        <p>Global and route-specific middleware with built-in common functionality</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h3>Built-in Protection</h3>
+                        <p>Comprehensive timeout protection and request validation</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚙️</div>
+                        <h3>Flexible Configuration</h3>
+                        <p>Multiple preset configurations for different environments</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Memory Safe</h3>
+                        <p>Comprehensive resource management and security validation</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌍</div>
+                        <h3>Cross-Platform</h3>
+                        <p>Supports Linux (io_uring/epoll), macOS (kqueue), and Windows (IOCP)</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📦</div>
+                        <h3>Production Ready</h3>
+                        <p>Battle-tested HTTP parsing and response building</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="quickstart" class="quickstart">
+            <div class="container">
+                <h2 class="section-title">Quick Start</h2>
+                <div class="quickstart-content">
+                    <div class="quickstart-steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h3>Installation</h3>
+                                <p>Add libxev-http to your project using git submodules:</p>
+                                <div class="code-block">
+                                    <pre><code>git submodule add https://github.com/mitchellh/libxev.git libxev</code></pre>
+                                    <button class="copy-btn" data-copy="git submodule add https://github.com/mitchellh/libxev.git libxev">Copy</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h3>Try Examples</h3>
+                                <p>Run the example server to see libxev-http in action:</p>
+                                <div class="code-block">
+                                    <pre><code># Clone and run
+git clone &lt;repository-url&gt;
+cd libxev-http
+zig build run-basic</code></pre>
+                                    <button class="copy-btn" data-copy="git clone <repository-url>
+cd libxev-http
+zig build run-basic">Copy</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h3>Build Your Server</h3>
+                                <p>Create your first HTTP server with middleware and routing:</p>
+                                <div class="code-block">
+                                    <pre><code>const server = try libxev_http.createServer(allocator, "127.0.0.1", 8080);
+try server.use("logging", libxev_http.loggingMiddleware);
+_ = try server.get("/", indexHandler);
+try server.listen();</code></pre>
+                                    <button class="copy-btn" data-copy='const server = try libxev_http.createServer(allocator, "127.0.0.1", 8080);
+try server.use("logging", libxev_http.loggingMiddleware);
+_ = try server.get("/", indexHandler);
+try server.listen();'>Copy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="performance">
+            <div class="container">
+                <h2 class="section-title">Performance & Architecture</h2>
+                <div class="performance-grid">
+                    <div class="performance-item">
+                        <h3>High Performance</h3>
+                        <ul>
+                            <li>Async I/O built on libxev's efficient event loop</li>
+                            <li>Zero-copy parsing with minimal memory allocations</li>
+                            <li>Efficient connection management and pooling</li>
+                            <li>Cross-platform optimized I/O mechanisms</li>
+                        </ul>
+                    </div>
+                    <div class="performance-item">
+                        <h3>Modular Architecture</h3>
+                        <ul>
+                            <li><strong>lib.zig</strong> - Main server implementation</li>
+                            <li><strong>router.zig</strong> - High-performance routing</li>
+                            <li><strong>middleware.zig</strong> - Flexible middleware system</li>
+                            <li><strong>security.zig</strong> - Timeout protection</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>libxev-http</h4>
+                    <p>High-performance async HTTP framework for Zig with built-in protection 🚀🛡️</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Documentation</h4>
+                    <ul>
+                        <li><a href="api.html">API Reference</a></li>
+                        <li><a href="examples.html">Examples</a></li>
+                        <li><a href="https://github.com/dg0230/libxev-http/blob/main/MIDDLEWARE.md">Middleware Guide</a></li>
+                        <li><a href="https://github.com/dg0230/libxev-http/blob/main/TIMEOUT_PROTECTION.md">Security Guide</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="https://github.com/dg0230/libxev-http">GitHub</a></li>
+                        <li><a href="https://github.com/dg0230/libxev-http/issues">Issues</a></li>
+                        <li><a href="https://github.com/dg0230/libxev-http/discussions">Discussions</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Acknowledgments</h4>
+                    <ul>
+                        <li><a href="https://github.com/mitchellh/libxev">libxev by Mitchell Hashimoto</a></li>
+                        <li><a href="https://ziglang.org/">Zig Programming Language</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 libxev-http. Licensed under the MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - libxev-http</title>
+    <meta name="description" content="The page you're looking for doesn't exist.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
+    <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            padding: 2rem;
+        }
+
+        .error-content {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+
+        .error-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .error-description {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .error-suggestions {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: var(--bg-primary);
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .error-suggestions h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .error-suggestions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .error-suggestions li {
+            margin: 0.5rem 0;
+        }
+
+        .error-suggestions a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .error-suggestions a:hover {
+            color: #e8851a;
+        }
+
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 6rem;
+            }
+
+            .error-title {
+                font-size: 2rem;
+            }
+
+            .error-description {
+                font-size: 1.125rem;
+            }
+
+            .error-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <span class="logo">⚡</span>
+                    <span class="brand-text">libxev-http</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="api.html">API</a>
+                    <a href="examples.html">Examples</a>
+                    <a href="https://github.com/your-username/libxev-http" class="github-link">GitHub</a>
+                </div>
+                <button class="nav-toggle" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="error-page">
+        <div class="error-content">
+            <div class="error-code">404</div>
+            <h1 class="error-title">Page Not Found</h1>
+            <p class="error-description">
+                The page you're looking for doesn't exist. It might have been moved, deleted, or you entered the wrong URL.
+            </p>
+
+            <div class="error-actions">
+                <a href="index.html" class="btn btn-primary">Go Home</a>
+                <a href="api.html" class="btn btn-secondary">View API Docs</a>
+            </div>
+
+            <div class="error-suggestions">
+                <h3>Popular Pages</h3>
+                <ul>
+                    <li><a href="index.html">🏠 Homepage - Get started with libxev-http</a></li>
+                    <li><a href="api.html">📚 API Reference - Complete documentation</a></li>
+                    <li><a href="examples.html">💡 Examples - Code samples and tutorials</a></li>
+                    <li><a href="https://github.com/your-username/libxev-http">🔧 GitHub Repository - Source code and issues</a></li>
+                    <li><a href="https://github.com/your-username/libxev-http/blob/main/README.md">📖 README - Project overview</a></li>
+                    <li><a href="https://github.com/your-username/libxev-http/blob/main/MIDDLEWARE.md">🔗 Middleware Guide - Advanced usage</a></li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

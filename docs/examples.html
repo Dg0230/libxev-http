@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examples - libxev-http</title>
+    <meta name="description" content="Code examples and tutorials for libxev-http - High-performance async HTTP framework for Zig.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
+    <style>
+        .examples-content {
+            padding: 6rem 0 4rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .example-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .example-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.75rem;
+        }
+
+        .example-section h3 {
+            color: var(--text-primary);
+            margin: 1.5rem 0 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .example-code {
+            background: var(--bg-dark);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .example-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: #1f2937;
+            border-bottom: 1px solid #374151;
+        }
+
+        .example-title {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .example-code pre {
+            padding: 1.5rem;
+            margin: 0;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: #e5e7eb;
+        }
+
+        .copy-example {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: background-color 0.2s;
+        }
+
+        .copy-example:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .example-description {
+            margin: 1rem 0;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .example-features {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .example-features h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .example-features ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .example-features li {
+            color: var(--text-secondary);
+            margin: 0.25rem 0;
+        }
+
+        .run-command {
+            background: var(--accent-color);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            margin: 1rem 0;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <span class="logo">⚡</span>
+                    <span class="brand-text">libxev-http</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="#basic">Basic Server</a>
+                    <a href="#middleware">Middleware</a>
+                    <a href="#advanced">Advanced</a>
+                    <a href="api.html">API</a>
+                    <a href="https://github.com/dg0230/libxev-http" class="github-link">GitHub</a>
+                </div>
+                <button class="nav-toggle" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="examples-content container">
+        <h1 class="section-title">Examples & Tutorials</h1>
+
+        <section id="basic" class="example-section">
+            <h2>Basic HTTP Server</h2>
+            <p class="example-description">
+                A simple HTTP server with basic routing and response handling.
+            </p>
+
+            <div class="example-code">
+                <div class="example-header">
+                    <span class="example-title">basic_server.zig</span>
+                    <button class="copy-example" data-copy="const std = @import(&quot;std&quot;);
+const libxev_http = @import(&quot;libxev-http&quot;);
+
+pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    // Create HTTP server
+    var server = try libxev_http.createServer(allocator, &quot;127.0.0.1&quot;, 8080);
+    defer server.deinit();
+
+    // Set up routes
+    _ = try server.get(&quot;/&quot;, indexHandler);
+    _ = try server.get(&quot;/api/status&quot;, statusHandler);
+    _ = try server.post(&quot;/api/echo&quot;, echoHandler);
+    _ = try server.get(&quot;/users/:id&quot;, userHandler);
+
+    std.log.info(&quot;Server listening on http://127.0.0.1:8080&quot;, .{});
+    try server.listen();
+}
+
+fn indexHandler(ctx: *libxev_http.Context) !void {
+    try ctx.html(&quot;&lt;h1&gt;Welcome to libxev-http!&lt;/h1&gt;&lt;p&gt;High-performance async HTTP framework for Zig&lt;/p&gt;&quot;);
+}
+
+fn statusHandler(ctx: *libxev_http.Context) !void {
+    try ctx.json(&quot;{\&quot;status\&quot;:\&quot;ok\&quot;,\&quot;server\&quot;:\&quot;libxev-http\&quot;,\&quot;version\&quot;:\&quot;1.0.0\&quot;}&quot;);
+}
+
+fn echoHandler(ctx: *libxev_http.Context) !void {
+    const body = ctx.getBody() orelse &quot;No body provided&quot;;
+    try ctx.text(body);
+}
+
+fn userHandler(ctx: *libxev_http.Context) !void {
+    const user_id = ctx.getParam(&quot;id&quot;) orelse &quot;unknown&quot;;
+    const response = try std.fmt.allocPrint(ctx.allocator,
+        &quot;{\&quot;user_id\&quot;:\&quot;{s}\&quot;,\&quot;name\&quot;:\&quot;User {s}\&quot;}&quot;, .{ user_id, user_id });
+    defer ctx.allocator.free(response);
+    try ctx.json(response);
+}">Copy</button>
+                </div>
+                <pre><code>const std = @import("std");
+const libxev_http = @import("libxev-http");
+
+pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    // Create HTTP server
+    var server = try libxev_http.createServer(allocator, "127.0.0.1", 8080);
+    defer server.deinit();
+
+    // Set up routes
+    _ = try server.get("/", indexHandler);
+    _ = try server.get("/api/status", statusHandler);
+    _ = try server.post("/api/echo", echoHandler);
+    _ = try server.get("/users/:id", userHandler);
+
+    std.log.info("Server listening on http://127.0.0.1:8080", .{});
+    try server.listen();
+}
+
+fn indexHandler(ctx: *libxev_http.Context) !void {
+    try ctx.html("&lt;h1&gt;Welcome to libxev-http!&lt;/h1&gt;&lt;p&gt;High-performance async HTTP framework for Zig&lt;/p&gt;");
+}
+
+fn statusHandler(ctx: *libxev_http.Context) !void {
+    try ctx.json("{\"status\":\"ok\",\"server\":\"libxev-http\",\"version\":\"1.0.0\"}");
+}
+
+fn echoHandler(ctx: *libxev_http.Context) !void {
+    const body = ctx.getBody() orelse "No body provided";
+    try ctx.text(body);
+}
+
+fn userHandler(ctx: *libxev_http.Context) !void {
+    const user_id = ctx.getParam("id") orelse "unknown";
+    const response = try std.fmt.allocPrint(ctx.allocator,
+        "{\"user_id\":\"{s}\",\"name\":\"User {s}\"}", .{ user_id, user_id });
+    defer ctx.allocator.free(response);
+    try ctx.json(response);
+}</code></pre>
+            </div>
+
+            <div class="example-features">
+                <h4>Features Demonstrated:</h4>
+                <ul>
+                    <li>Basic server creation and setup</li>
+                    <li>Route registration for different HTTP methods</li>
+                    <li>Parameter extraction from URLs</li>
+                    <li>JSON, HTML, and text responses</li>
+                    <li>Memory management with allocators</li>
+                </ul>
+            </div>
+
+            <div class="run-command">zig build run-basic</div>
+        </section>
+
+        <section id="middleware" class="example-section">
+            <h2>Middleware Example</h2>
+            <p class="example-description">
+                Demonstrates the middleware system with both global and route-specific middleware.
+            </p>
+
+            <div class="example-code">
+                <div class="example-header">
+                    <span class="example-title">middleware_server.zig</span>
+                    <button class="copy-example" data-copy="const std = @import(&quot;std&quot;);
+const libxev_http = @import(&quot;libxev-http&quot;);
+
+pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    var server = try libxev_http.createServer(allocator, &quot;127.0.0.1&quot;, 8080);
+    defer server.deinit();
+
+    // Global middleware (applies to all routes)
+    try server.use(&quot;logging&quot;, libxev_http.loggingMiddleware);
+    try server.use(&quot;request-id&quot;, libxev_http.requestIdMiddleware);
+    try server.use(&quot;cors&quot;, libxev_http.corsMiddleware);
+    try server.use(&quot;security&quot;, libxev_http.securityHeadersMiddleware);
+    try server.use(&quot;custom&quot;, customMiddleware);
+
+    // Public routes
+    _ = try server.get(&quot;/&quot;, indexHandler);
+    _ = try server.get(&quot;/public&quot;, publicHandler);
+
+    // Protected route with additional middleware
+    const protected_route = try server.get(&quot;/api/protected&quot;, protectedHandler);
+    try protected_route.use(&quot;auth&quot;, authMiddleware);
+    try protected_route.use(&quot;rate-limit&quot;, rateLimitMiddleware);
+
+    // Admin route with multiple middleware layers
+    const admin_route = try server.get(&quot;/admin&quot;, adminHandler);
+    try admin_route.use(&quot;auth&quot;, authMiddleware);
+    try admin_route.use(&quot;admin-check&quot;, adminCheckMiddleware);
+
+    std.log.info(&quot;Server with middleware listening on http://127.0.0.1:8080&quot;, .{});
+    try server.listen();
+}
+
+fn customMiddleware(ctx: *libxev_http.Context, next: libxev_http.NextFn) !void {
+    // Pre-processing
+    try ctx.setHeader(&quot;X-Custom-Server&quot;, &quot;libxev-http&quot;);
+    try ctx.setHeader(&quot;X-Processing-Time&quot;, &quot;start&quot;);
+
+    const start_time = std.time.milliTimestamp();
+
+    // Call next middleware/handler
+    try next(ctx);
+
+    // Post-processing
+    const end_time = std.time.milliTimestamp();
+    const duration = end_time - start_time;
+    const duration_str = try std.fmt.allocPrint(ctx.allocator, &quot;{d}ms&quot;, .{duration});
+    defer ctx.allocator.free(duration_str);
+    try ctx.setHeader(&quot;X-Processing-Time&quot;, duration_str);
+}
+
+fn authMiddleware(ctx: *libxev_http.Context, next: libxev_http.NextFn) !void {
+    const auth_header = ctx.getHeader(&quot;Authorization&quot;);
+    if (auth_header == null or !std.mem.startsWith(u8, auth_header.?, &quot;Bearer &quot;)) {
+        ctx.status(.unauthorized);
+        try ctx.json(&quot;{\&quot;error\&quot;:\&quot;Unauthorized\&quot;}&quot;);
+        return;
+    }
+
+    // In a real app, validate the token here
+    try next(ctx);
+}
+
+fn rateLimitMiddleware(ctx: *libxev_http.Context, next: libxev_http.NextFn) !void {
+    // Simple rate limiting example
+    try ctx.setHeader(&quot;X-RateLimit-Limit&quot;, &quot;100&quot;);
+    try ctx.setHeader(&quot;X-RateLimit-Remaining&quot;, &quot;99&quot;);
+    try next(ctx);
+}
+
+fn adminCheckMiddleware(ctx: *libxev_http.Context, next: libxev_http.NextFn) !void {
+    // Check if user has admin privileges
+    const auth_header = ctx.getHeader(&quot;Authorization&quot;) orelse &quot;&quot;;
+    if (!std.mem.endsWith(u8, auth_header, &quot;admin-token&quot;)) {
+        ctx.status(.forbidden);
+        try ctx.json(&quot;{\&quot;error\&quot;:\&quot;Admin access required\&quot;}&quot;);
+        return;
+    }
+    try next(ctx);
+}
+
+fn indexHandler(ctx: *libxev_http.Context) !void {
+    try ctx.html(&quot;&lt;h1&gt;Middleware Demo&lt;/h1&gt;&lt;p&gt;Check the response headers!&lt;/p&gt;&quot;);
+}
+
+fn publicHandler(ctx: *libxev_http.Context) !void {
+    try ctx.json(&quot;{\&quot;message\&quot;:\&quot;This is a public endpoint\&quot;}&quot;);
+}
+
+fn protectedHandler(ctx: *libxev_http.Context) !void {
+    try ctx.json(&quot;{\&quot;message\&quot;:\&quot;This is a protected endpoint\&quot;,\&quot;user\&quot;:\&quot;authenticated\&quot;}&quot;);
+}
+
+fn adminHandler(ctx: *libxev_http.Context) !void {
+    try ctx.json(&quot;{\&quot;message\&quot;:\&quot;Admin panel\&quot;,\&quot;privileges\&quot;:\&quot;full\&quot;}&quot;);
+}">Copy</button>
+                </div>
+                <pre><code>const std = @import("std");
+const libxev_http = @import("libxev-http");
+
+pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    var server = try libxev_http.createServer(allocator, "127.0.0.1", 8080);
+    defer server.deinit();
+
+    // Global middleware (applies to all routes)
+    try server.use("logging", libxev_http.loggingMiddleware);
+    try server.use("request-id", libxev_http.requestIdMiddleware);
+    try server.use("cors", libxev_http.corsMiddleware);
+    try server.use("security", libxev_http.securityHeadersMiddleware);
+    try server.use("custom", customMiddleware);
+
+    // Public routes
+    _ = try server.get("/", indexHandler);
+    _ = try server.get("/public", publicHandler);
+
+    // Protected route with additional middleware
+    const protected_route = try server.get("/api/protected", protectedHandler);
+    try protected_route.use("auth", authMiddleware);
+    try protected_route.use("rate-limit", rateLimitMiddleware);
+
+    // Admin route with multiple middleware layers
+    const admin_route = try server.get("/admin", adminHandler);
+    try admin_route.use("auth", authMiddleware);
+    try admin_route.use("admin-check", adminCheckMiddleware);
+
+    std.log.info("Server with middleware listening on http://127.0.0.1:8080", .{});
+    try server.listen();
+}</code></pre>
+            </div>
+
+            <div class="example-features">
+                <h4>Features Demonstrated:</h4>
+                <ul>
+                    <li>Global middleware for all routes</li>
+                    <li>Route-specific middleware</li>
+                    <li>Custom middleware creation</li>
+                    <li>Authentication and authorization</li>
+                    <li>Request timing and headers</li>
+                    <li>Middleware chaining and execution order</li>
+                </ul>
+            </div>
+
+            <div class="run-command">zig build run-middleware</div>
+        </section>
+
+        <section id="advanced" class="example-section">
+            <h2>Advanced Configuration</h2>
+            <p class="example-description">
+                Production-ready server with custom configuration, error handling, and security features.
+            </p>
+
+            <div class="example-code">
+                <div class="example-header">
+                    <span class="example-title">production_server.zig</span>
+                    <button class="copy-example" data-copy="const std = @import(&quot;std&quot;);
+const libxev_http = @import(&quot;libxev-http&quot;);
+
+pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    // Production configuration with strict security
+    const config = libxev_http.HttpConfig{
+        .connection_timeout_ms = 30000,      // 30 seconds
+        .request_timeout_ms = 30000,         // 30 seconds
+        .header_timeout_ms = 10000,          // 10 seconds
+        .body_timeout_ms = 60000,            // 60 seconds
+        .idle_timeout_ms = 5000,             // 5 seconds
+        .max_request_size = 1024 * 1024,     // 1MB
+        .max_body_size = 10 * 1024 * 1024,   // 10MB
+        .enable_request_validation = true,
+        .enable_timeout_protection = true,
+        .enable_keep_alive = true,
+    };
+
+    var server = try libxev_http.createServerWithConfig(
+        allocator,
+        &quot;0.0.0.0&quot;,
+        8080,
+        config
+    );
+    defer server.deinit();
+
+    // Production middleware stack
+    try server.use(&quot;error-handler&quot;, errorHandlerMiddleware);
+    try server.use(&quot;logging&quot;, libxev_http.loggingMiddleware);
+    try server.use(&quot;request-id&quot;, libxev_http.requestIdMiddleware);
+    try server.use(&quot;security&quot;, libxev_http.securityHeadersMiddleware);
+    try server.use(&quot;cors&quot;, libxev_http.corsMiddleware);
+    try server.use(&quot;compression&quot;, libxev_http.compressionMiddleware);
+
+    // Health check endpoint
+    _ = try server.get(&quot;/health&quot;, healthHandler);
+
+    // API routes with versioning
+    _ = try server.get(&quot;/api/v1/status&quot;, apiStatusHandler);
+    _ = try server.post(&quot;/api/v1/upload&quot;, uploadHandler);
+    _ = try server.get(&quot;/api/v1/users/:id&quot;, getUserHandler);
+    _ = try server.put(&quot;/api/v1/users/:id&quot;, updateUserHandler);
+
+    // Static file serving
+    _ = try server.get(&quot;/static/*&quot;, staticFileHandler);
+
+    // Catch-all for 404
+    _ = try server.get(&quot;/*&quot;, notFoundHandler);
+
+    std.log.info(&quot;Production server listening on http://0.0.0.0:8080&quot;, .{});
+    try server.listen();
+}
+
+fn errorHandlerMiddleware(ctx: *libxev_http.Context, next: libxev_http.NextFn) !void {
+    next(ctx) catch |err| {
+        std.log.err(&quot;Request error: {}&quot;, .{err});
+
+        switch (err) {
+            libxev_http.HttpError.RequestTooLarge => {
+                ctx.status(.payload_too_large);
+                try ctx.json(&quot;{\&quot;error\&quot;:\&quot;Request too large\&quot;,\&quot;code\&quot;:413}&quot;);
+            },
+            libxev_http.HttpError.Timeout => {
+                ctx.status(.request_timeout);
+                try ctx.json(&quot;{\&quot;error\&quot;:\&quot;Request timeout\&quot;,\&quot;code\&quot;:408}&quot;);
+            },
+            else => {
+                ctx.status(.internal_server_error);
+                try ctx.json(&quot;{\&quot;error\&quot;:\&quot;Internal server error\&quot;,\&quot;code\&quot;:500}&quot;);
+            },
+        }
+    };
+}
+
+fn healthHandler(ctx: *libxev_http.Context) !void {
+    const health_data = try std.fmt.allocPrint(ctx.allocator,
+        &quot;{\&quot;status\&quot;:\&quot;healthy\&quot;,\&quot;timestamp\&quot;:{d},\&quot;uptime\&quot;:\&quot;running\&quot;}&quot;,
+        .{std.time.timestamp()});
+    defer ctx.allocator.free(health_data);
+    try ctx.json(health_data);
+}
+
+fn apiStatusHandler(ctx: *libxev_http.Context) !void {
+    try ctx.json(&quot;{\&quot;api\&quot;:\&quot;v1\&quot;,\&quot;status\&quot;:\&quot;operational\&quot;,\&quot;features\&quot;:[\&quot;upload\&quot;,\&quot;users\&quot;,\&quot;static\&quot;]}&quot;);
+}
+
+fn uploadHandler(ctx: *libxev_http.Context) !void {
+    const content_length = ctx.getHeader(&quot;Content-Length&quot;);
+    if (content_length == null) {
+        ctx.status(.bad_request);
+        try ctx.json(&quot;{\&quot;error\&quot;:\&quot;Content-Length header required\&quot;}&quot;);
+        return;
+    }
+
+    const body = ctx.getBody() orelse &quot;&quot;;
+    const response = try std.fmt.allocPrint(ctx.allocator,
+        &quot;{\&quot;message\&quot;:\&quot;Upload received\&quot;,\&quot;size\&quot;:{d},\&quot;status\&quot;:\&quot;processed\&quot;}&quot;,
+        .{body.len});
+    defer ctx.allocator.free(response);
+
+    ctx.status(.created);
+    try ctx.json(response);
+}
+
+fn getUserHandler(ctx: *libxev_http.Context) !void {
+    const user_id = ctx.getParam(&quot;id&quot;) orelse &quot;unknown&quot;;
+
+    // Simulate database lookup
+    if (std.mem.eql(u8, user_id, &quot;404&quot;)) {
+        ctx.status(.not_found);
+        try ctx.json(&quot;{\&quot;error\&quot;:\&quot;User not found\&quot;}&quot;);
+        return;
+    }
+
+    const user_data = try std.fmt.allocPrint(ctx.allocator,
+        &quot;{\&quot;id\&quot;:\&quot;{s}\&quot;,\&quot;name\&quot;:\&quot;User {s}\&quot;,\&quot;email\&quot;:\&quot;user{s}@example.com\&quot;,\&quot;active\&quot;:true}&quot;,
+        .{ user_id, user_id, user_id });
+    defer ctx.allocator.free(user_data);
+    try ctx.json(user_data);
+}
+
+fn updateUserHandler(ctx: *libxev_http.Context) !void {
+    const user_id = ctx.getParam(&quot;id&quot;) orelse &quot;unknown&quot;;
+    const body = ctx.getBody() orelse &quot;{}&quot;;
+
+    const response = try std.fmt.allocPrint(ctx.allocator,
+        &quot;{\&quot;id\&quot;:\&quot;{s}\&quot;,\&quot;message\&quot;:\&quot;User updated\&quot;,\&quot;data\&quot;:{s}}&quot;,
+        .{ user_id, body });
+    defer ctx.allocator.free(response);
+    try ctx.json(response);
+}
+
+fn staticFileHandler(ctx: *libxev_http.Context) !void {
+    const path = ctx.getPath();
+    const file_path = path[8..]; // Remove '/static/' prefix
+
+    // In a real app, serve actual files from filesystem
+    const response = try std.fmt.allocPrint(ctx.allocator,
+        &quot;{\&quot;message\&quot;:\&quot;Static file\&quot;,\&quot;path\&quot;:\&quot;{s}\&quot;,\&quot;note\&quot;:\&quot;In production, serve actual files\&quot;}&quot;,
+        .{file_path});
+    defer ctx.allocator.free(response);
+    try ctx.json(response);
+}
+
+fn notFoundHandler(ctx: *libxev_http.Context) !void {
+    ctx.status(.not_found);
+    const path = ctx.getPath();
+    const response = try std.fmt.allocPrint(ctx.allocator,
+        &quot;{\&quot;error\&quot;:\&quot;Not found\&quot;,\&quot;path\&quot;:\&quot;{s}\&quot;,\&quot;code\&quot;:404}&quot;,
+        .{path});
+    defer ctx.allocator.free(response);
+    try ctx.json(response);
+}">Copy</button>
+                </div>
+                <pre><code>const std = @import("std");
+const libxev_http = @import("libxev-http");
+
+pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    // Production configuration with strict security
+    const config = libxev_http.HttpConfig{
+        .connection_timeout_ms = 30000,      // 30 seconds
+        .request_timeout_ms = 30000,         // 30 seconds
+        .header_timeout_ms = 10000,          // 10 seconds
+        .body_timeout_ms = 60000,            // 60 seconds
+        .idle_timeout_ms = 5000,             // 5 seconds
+        .max_request_size = 1024 * 1024,     // 1MB
+        .max_body_size = 10 * 1024 * 1024,   // 10MB
+        .enable_request_validation = true,
+        .enable_timeout_protection = true,
+        .enable_keep_alive = true,
+    };
+
+    var server = try libxev_http.createServerWithConfig(
+        allocator,
+        "0.0.0.0",
+        8080,
+        config
+    );
+    defer server.deinit();
+
+    // Production middleware stack
+    try server.use("error-handler", errorHandlerMiddleware);
+    try server.use("logging", libxev_http.loggingMiddleware);
+    try server.use("request-id", libxev_http.requestIdMiddleware);
+    try server.use("security", libxev_http.securityHeadersMiddleware);
+    try server.use("cors", libxev_http.corsMiddleware);
+    try server.use("compression", libxev_http.compressionMiddleware);
+
+    // Health check endpoint
+    _ = try server.get("/health", healthHandler);
+
+    // API routes with versioning
+    _ = try server.get("/api/v1/status", apiStatusHandler);
+    _ = try server.post("/api/v1/upload", uploadHandler);
+    _ = try server.get("/api/v1/users/:id", getUserHandler);
+    _ = try server.put("/api/v1/users/:id", updateUserHandler);
+
+    // Static file serving
+    _ = try server.get("/static/*", staticFileHandler);
+
+    // Catch-all for 404
+    _ = try server.get("/*", notFoundHandler);
+
+    std.log.info("Production server listening on http://0.0.0.0:8080", .{});
+    try server.listen();
+}</code></pre>
+            </div>
+
+            <div class="example-features">
+                <h4>Features Demonstrated:</h4>
+                <ul>
+                    <li>Custom production configuration</li>
+                    <li>Comprehensive error handling</li>
+                    <li>Health check endpoints</li>
+                    <li>API versioning</li>
+                    <li>File upload handling</li>
+                    <li>Static file serving</li>
+                    <li>404 error handling</li>
+                    <li>Security middleware stack</li>
+                </ul>
+            </div>
+
+            <div class="run-command">zig build run-production</div>
+        </section>
+
+        <section class="example-section">
+            <h2>Testing Your Server</h2>
+            <p class="example-description">
+                Example commands to test your libxev-http server endpoints.
+            </p>
+
+            <div class="example-code">
+                <div class="example-header">
+                    <span class="example-title">test_commands.sh</span>
+                    <button class="copy-example" data-copy="#!/bin/bash
+
+# Test basic endpoints
+echo &quot;Testing basic endpoints...&quot;
+
+# GET request
+curl -X GET http://localhost:8080/
+
+# JSON API endpoint
+curl -X GET http://localhost:8080/api/status
+
+# POST with data
+curl -X POST http://localhost:8080/api/echo \
+  -H &quot;Content-Type: text/plain&quot; \
+  -d &quot;Hello, libxev-http!&quot;
+
+# URL parameters
+curl -X GET http://localhost:8080/users/123
+
+# Test middleware endpoints
+echo -e &quot;\nTesting middleware...&quot;
+
+# Public endpoint
+curl -X GET http://localhost:8080/public
+
+# Protected endpoint (should fail)
+curl -X GET http://localhost:8080/api/protected
+
+# Protected endpoint with auth
+curl -X GET http://localhost:8080/api/protected \
+  -H &quot;Authorization: Bearer valid-token&quot;
+
+# Admin endpoint
+curl -X GET http://localhost:8080/admin \
+  -H &quot;Authorization: Bearer admin-token&quot;
+
+# Test production endpoints
+echo -e &quot;\nTesting production endpoints...&quot;
+
+# Health check
+curl -X GET http://localhost:8080/health
+
+# API status
+curl -X GET http://localhost:8080/api/v1/status
+
+# File upload
+curl -X POST http://localhost:8080/api/v1/upload \
+  -H &quot;Content-Type: application/octet-stream&quot; \
+  -H &quot;Content-Length: 13&quot; \
+  -d &quot;test file data&quot;
+
+# User operations
+curl -X GET http://localhost:8080/api/v1/users/456
+
+curl -X PUT http://localhost:8080/api/v1/users/456 \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;name&quot;:&quot;Updated User&quot;,&quot;email&quot;:&quot;updated@example.com&quot;}'
+
+# Static files
+curl -X GET http://localhost:8080/static/css/style.css
+
+# 404 test
+curl -X GET http://localhost:8080/nonexistent
+
+echo -e &quot;\nAll tests completed!&quot;">Copy</button>
+                </div>
+                <pre><code>#!/bin/bash
+
+# Test basic endpoints
+echo "Testing basic endpoints..."
+
+# GET request
+curl -X GET http://localhost:8080/
+
+# JSON API endpoint
+curl -X GET http://localhost:8080/api/status
+
+# POST with data
+curl -X POST http://localhost:8080/api/echo \
+  -H "Content-Type: text/plain" \
+  -d "Hello, libxev-http!"
+
+# URL parameters
+curl -X GET http://localhost:8080/users/123
+
+# Test middleware endpoints
+echo -e "\nTesting middleware..."
+
+# Public endpoint
+curl -X GET http://localhost:8080/public
+
+# Protected endpoint (should fail)
+curl -X GET http://localhost:8080/api/protected
+
+# Protected endpoint with auth
+curl -X GET http://localhost:8080/api/protected \
+  -H "Authorization: Bearer valid-token"
+
+# Admin endpoint
+curl -X GET http://localhost:8080/admin \
+  -H "Authorization: Bearer admin-token"
+
+# Test production endpoints
+echo -e "\nTesting production endpoints..."
+
+# Health check
+curl -X GET http://localhost:8080/health
+
+# API status
+curl -X GET http://localhost:8080/api/v1/status
+
+# File upload
+curl -X POST http://localhost:8080/api/v1/upload \
+  -H "Content-Type: application/octet-stream" \
+  -H "Content-Length: 13" \
+  -d "test file data"
+
+# User operations
+curl -X GET http://localhost:8080/api/v1/users/456
+
+curl -X PUT http://localhost:8080/api/v1/users/456 \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Updated User","email":"updated@example.com"}'
+
+# Static files
+curl -X GET http://localhost:8080/static/css/style.css
+
+# 404 test
+curl -X GET http://localhost:8080/nonexistent
+
+echo -e "\nAll tests completed!"</code></pre>
+            </div>
+
+            <div class="example-features">
+                <h4>Test Coverage:</h4>
+                <ul>
+                    <li>Basic HTTP methods (GET, POST, PUT)</li>
+                    <li>URL parameter extraction</li>
+                    <li>Authentication and authorization</li>
+                    <li>File upload and static serving</li>
+                    <li>Error handling (404, auth failures)</li>
+                    <li>Health checks and API status</li>
+                </ul>
+            </div>
+
+            <div class="run-command">chmod +x test_commands.sh && ./test_commands.sh</div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>libxev-http</h4>
+                    <p>High-performance async HTTP framework for Zig with built-in protection 🚀🛡️</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Documentation</h4>
+                    <ul>
+                        <li><a href="api.html">API Reference</a></li>
+                        <li><a href="examples.html">Examples</a></li>
+                        <li><a href="https://github.com/dg0230/libxev-http/blob/main/MIDDLEWARE.md">Middleware Guide</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="https://github.com/dg0230/libxev-http">GitHub</a></li>
+                        <li><a href="https://github.com/dg0230/libxev-http/issues">Issues</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 libxev-http. Licensed under the MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

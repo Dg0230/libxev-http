@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - libxev-http</title>
+    <meta name="description" content="Complete API reference for libxev-http - High-performance async HTTP framework for Zig.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
+    <style>
+        .api-content {
+            padding: 6rem 0 4rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .api-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .api-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.75rem;
+        }
+
+        .api-section h3 {
+            color: var(--text-primary);
+            margin: 1.5rem 0 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .api-method {
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .method-signature {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-dark);
+            color: #e5e7eb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .parameter-list {
+            margin: 1rem 0;
+        }
+
+        .parameter {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: rgba(247, 147, 30, 0.1);
+            border-radius: 0.25rem;
+        }
+
+        .parameter-name {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .parameter-type {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .toc {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .toc h2 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            margin: 0.5rem 0;
+        }
+
+        .toc a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .toc a:hover {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <span class="logo">⚡</span>
+                    <span class="brand-text">libxev-http</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="#server">Server</a>
+                    <a href="#context">Context</a>
+                    <a href="#middleware">Middleware</a>
+                    <a href="examples.html">Examples</a>
+                    <a href="https://github.com/dg0230/libxev-http" class="github-link">GitHub</a>
+                </div>
+                <button class="nav-toggle" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="api-content container">
+        <h1 class="section-title">API Reference</h1>
+
+        <div class="toc">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#server">Server Creation & Management</a></li>
+                <li><a href="#routing">Routing</a></li>
+                <li><a href="#context">Request Context</a></li>
+                <li><a href="#middleware">Middleware System</a></li>
+                <li><a href="#configuration">Configuration</a></li>
+                <li><a href="#security">Security & Protection</a></li>
+            </ul>
+        </div>
+
+        <section id="server" class="api-section">
+            <h2>Server Creation & Management</h2>
+
+            <div class="api-method">
+                <h3>createServer</h3>
+                <p>Creates a new HTTP server with default configuration.</p>
+                <div class="method-signature">
+                    <code>pub fn createServer(allocator: std.mem.Allocator, host: []const u8, port: u16) !*HttpServer</code>
+                </div>
+                <div class="parameter-list">
+                    <div class="parameter">
+                        <span class="parameter-name">allocator</span>
+                        <span class="parameter-type">std.mem.Allocator</span>
+                        <p>Memory allocator for server resources</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">host</span>
+                        <span class="parameter-type">[]const u8</span>
+                        <p>Host address to bind to (e.g., "127.0.0.1")</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">port</span>
+                        <span class="parameter-type">u16</span>
+                        <p>Port number to listen on</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="api-method">
+                <h3>createServerWithConfig</h3>
+                <p>Creates a new HTTP server with custom configuration.</p>
+                <div class="method-signature">
+                    <code>pub fn createServerWithConfig(allocator: std.mem.Allocator, host: []const u8, port: u16, config: HttpConfig) !*HttpServer</code>
+                </div>
+                <div class="parameter-list">
+                    <div class="parameter">
+                        <span class="parameter-name">config</span>
+                        <span class="parameter-type">HttpConfig</span>
+                        <p>Custom server configuration</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="api-method">
+                <h3>listen</h3>
+                <p>Starts the server and begins accepting connections.</p>
+                <div class="method-signature">
+                    <code>pub fn listen(self: *HttpServer) !void</code>
+                </div>
+            </div>
+
+            <div class="api-method">
+                <h3>deinit</h3>
+                <p>Cleans up server resources.</p>
+                <div class="method-signature">
+                    <code>pub fn deinit(self: *HttpServer) void</code>
+                </div>
+            </div>
+        </section>
+
+        <section id="routing" class="api-section">
+            <h2>Routing</h2>
+
+            <div class="api-method">
+                <h3>get / post / put / delete</h3>
+                <p>Register route handlers for different HTTP methods.</p>
+                <div class="method-signature">
+                    <code>pub fn get(self: *HttpServer, path: []const u8, handler: HandlerFn) !*Route
+pub fn post(self: *HttpServer, path: []const u8, handler: HandlerFn) !*Route
+pub fn put(self: *HttpServer, path: []const u8, handler: HandlerFn) !*Route
+pub fn delete(self: *HttpServer, path: []const u8, handler: HandlerFn) !*Route</code>
+                </div>
+                <div class="parameter-list">
+                    <div class="parameter">
+                        <span class="parameter-name">path</span>
+                        <span class="parameter-type">[]const u8</span>
+                        <p>Route path (supports parameters like "/users/:id" and wildcards "/static/*")</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">handler</span>
+                        <span class="parameter-type">HandlerFn</span>
+                        <p>Function to handle requests: <code>fn(ctx: *Context) anyerror!void</code></p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Path Patterns</h3>
+            <ul>
+                <li><strong>Exact paths:</strong> <code>/users</code>, <code>/api/status</code></li>
+                <li><strong>Parameters:</strong> <code>/users/:id</code>, <code>/posts/:id/comments/:comment_id</code></li>
+                <li><strong>Wildcards:</strong> <code>/static/*</code> (matches everything after /static/)</li>
+            </ul>
+        </section>
+
+        <section id="context" class="api-section">
+            <h2>Request Context</h2>
+
+            <div class="api-method">
+                <h3>Request Information</h3>
+                <div class="method-signature">
+                    <code>pub fn getMethod(self: *Context) []const u8
+pub fn getPath(self: *Context) []const u8
+pub fn getBody(self: *Context) ?[]const u8
+pub fn getHeader(self: *Context, name: []const u8) ?[]const u8
+pub fn getParam(self: *Context, name: []const u8) ?[]const u8</code>
+                </div>
+            </div>
+
+            <div class="api-method">
+                <h3>Response Helpers</h3>
+                <div class="method-signature">
+                    <code>pub fn status(self: *Context, code: HttpStatus) void
+pub fn json(self: *Context, data: []const u8) !void
+pub fn html(self: *Context, content: []const u8) !void
+pub fn text(self: *Context, content: []const u8) !void
+pub fn setHeader(self: *Context, name: []const u8, value: []const u8) !void
+pub fn redirect(self: *Context, location: []const u8, status_code: HttpStatus) !void</code>
+                </div>
+            </div>
+
+            <h3>HTTP Status Codes</h3>
+            <ul>
+                <li><code>.ok</code> (200)</li>
+                <li><code>.created</code> (201)</li>
+                <li><code>.bad_request</code> (400)</li>
+                <li><code>.unauthorized</code> (401)</li>
+                <li><code>.not_found</code> (404)</li>
+                <li><code>.internal_server_error</code> (500)</li>
+            </ul>
+        </section>
+
+        <section id="middleware" class="api-section">
+            <h2>Middleware System</h2>
+
+            <div class="api-method">
+                <h3>use (Global Middleware)</h3>
+                <p>Add middleware that applies to all routes.</p>
+                <div class="method-signature">
+                    <code>pub fn use(self: *HttpServer, name: []const u8, middleware: MiddlewareFn) !void</code>
+                </div>
+            </div>
+
+            <div class="api-method">
+                <h3>Route.use (Route-specific Middleware)</h3>
+                <p>Add middleware to a specific route.</p>
+                <div class="method-signature">
+                    <code>pub fn use(self: *Route, name: []const u8, middleware: MiddlewareFn) !void</code>
+                </div>
+            </div>
+
+            <h3>Built-in Middleware</h3>
+            <ul>
+                <li><code>loggingMiddleware</code> - Request logging with timing</li>
+                <li><code>requestIdMiddleware</code> - Unique request ID generation</li>
+                <li><code>corsMiddleware</code> - CORS headers support</li>
+                <li><code>securityHeadersMiddleware</code> - Security headers</li>
+                <li><code>basicAuthMiddleware</code> - HTTP Basic authentication</li>
+                <li><code>rateLimitMiddleware</code> - Rate limiting</li>
+                <li><code>errorHandlerMiddleware</code> - Error handling</li>
+            </ul>
+
+            <div class="api-method">
+                <h3>Custom Middleware</h3>
+                <p>Middleware function signature:</p>
+                <div class="method-signature">
+                    <code>fn customMiddleware(ctx: *Context, next: NextFn) anyerror!void {
+    // Pre-processing
+    try ctx.setHeader("X-Custom", "value");
+
+    // Call next middleware/handler
+    try next(ctx);
+
+    // Post-processing (optional)
+}</code>
+                </div>
+            </div>
+        </section>
+
+        <section id="configuration" class="api-section">
+            <h2>Configuration</h2>
+
+            <div class="api-method">
+                <h3>HttpConfig</h3>
+                <div class="method-signature">
+                    <code>pub const HttpConfig = struct {
+    connection_timeout_ms: u32 = 30000,
+    request_timeout_ms: u32 = 30000,
+    header_timeout_ms: u32 = 10000,
+    body_timeout_ms: u32 = 60000,
+    idle_timeout_ms: u32 = 5000,
+    max_request_size: usize = 1024 * 1024,
+    max_body_size: usize = 10 * 1024 * 1024,
+    enable_request_validation: bool = true,
+    enable_timeout_protection: bool = true,
+    enable_keep_alive: bool = true,
+};</code>
+                </div>
+            </div>
+
+            <h3>Preset Configurations</h3>
+            <div class="api-method">
+                <div class="method-signature">
+                    <code>pub fn development() HttpConfig  // Relaxed timeouts, detailed logging
+pub fn production() HttpConfig   // Balanced settings
+pub fn testing() HttpConfig      // Fast timeouts, small limits</code>
+                </div>
+            </div>
+        </section>
+
+        <section id="security" class="api-section">
+            <h2>Security & Protection</h2>
+
+            <h3>Timeout Protection</h3>
+            <ul>
+                <li><strong>Connection timeout:</strong> Limits total connection lifetime</li>
+                <li><strong>Request timeout:</strong> Limits time to receive complete request</li>
+                <li><strong>Header timeout:</strong> Limits time to receive HTTP headers</li>
+                <li><strong>Body timeout:</strong> Limits time to receive request body</li>
+                <li><strong>Idle timeout:</strong> Limits connection idle time</li>
+            </ul>
+
+            <h3>Request Validation</h3>
+            <ul>
+                <li><strong>Size limits:</strong> Configurable limits for requests, headers, and body</li>
+                <li><strong>Format validation:</strong> Validates HTTP request format</li>
+                <li><strong>Progress monitoring:</strong> Monitors request reception progress</li>
+            </ul>
+
+            <div class="api-method">
+                <h3>Security Configuration Example</h3>
+                <div class="method-signature">
+                    <code>const secure_config = HttpConfig{
+    .connection_timeout_ms = 10000,       // 10 seconds
+    .header_timeout_ms = 3000,            // 3 seconds
+    .body_timeout_ms = 5000,              // 5 seconds
+    .max_request_size = 256 * 1024,       // 256KB
+    .max_body_size = 1024 * 1024,         // 1MB
+    .enable_keep_alive = false,           // Disable keep-alive
+};</code>
+                </div>
+            </div>
+        </section>
+
+        <section class="api-section">
+            <h2>Error Handling</h2>
+
+            <div class="api-method">
+                <h3>Common Error Types</h3>
+                <div class="method-signature">
+                    <code>pub const HttpError = error{
+    InvalidRequest,
+    RequestTooLarge,
+    HeaderTooLarge,
+    BodyTooLarge,
+    Timeout,
+    ConnectionClosed,
+    OutOfMemory,
+};</code>
+                </div>
+            </div>
+
+            <div class="api-method">
+                <h3>Error Handler Example</h3>
+                <div class="method-signature">
+                    <code>fn errorHandler(ctx: *Context, err: anyerror) !void {
+    switch (err) {
+        HttpError.RequestTooLarge => {
+            ctx.status(.payload_too_large);
+            try ctx.json("{\"error\":\"Request too large\"}");
+        },
+        HttpError.Timeout => {
+            ctx.status(.request_timeout);
+            try ctx.json("{\"error\":\"Request timeout\"}");
+        },
+        else => {
+            ctx.status(.internal_server_error);
+            try ctx.json("{\"error\":\"Internal server error\"}");
+        },
+    }
+}</code>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>libxev-http</h4>
+                    <p>High-performance async HTTP framework for Zig with built-in protection 🚀🛡️</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Documentation</h4>
+                    <ul>
+                        <li><a href="api.html">API Reference</a></li>
+                        <li><a href="examples.html">Examples</a></li>
+                        <li><a href="https://github.com/dg0230/libxev-http/blob/main/MIDDLEWARE.md">Middleware Guide</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="https://github.com/dg0230/libxev-http">GitHub</a></li>
+                        <li><a href="https://github.com/dg0230/libxev-http/issues">Issues</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 libxev-http. Licensed under the MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+# GitHub Pages configuration for libxev-http
+title: "libxev-http"
+description: "High-performance async HTTP framework for Zig built on top of libxev with built-in protection and middleware support"
+url: "https://dg0230.github.io"
+baseurl: "/libxev-http"
+
+# Site metadata
+lang: en
+timezone: UTC
+encoding: utf-8
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Exclude files from processing
+exclude:
+  - README.md
+  - LICENSE
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+
+# Include files
+include:
+  - _pages
+
+# Collections
+collections:
+  pages:
+    output: true
+    permalink: /:name/
+
+# Default layouts
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+
+# SEO and social
+author: "libxev-http contributors"
+twitter:
+  username: your-twitter
+  card: summary_large_image
+
+# GitHub repository
+repository: "dg0230/libxev-http"
+
+# Google Analytics (optional)
+# google_analytics: UA-XXXXXXXX-X
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Site navigation
+navigation:
+  - title: "Home"
+    url: "/"
+  - title: "API Reference"
+    url: "/api.html"
+  - title: "Examples"
+    url: "/examples.html"
+  - title: "GitHub"
+    url: "https://github.com/dg0230/libxev-http"
+    external: true
+
+# Footer links
+footer_links:
+  - title: "Documentation"
+    links:
+      - title: "API Reference"
+        url: "/api.html"
+      - title: "Examples"
+        url: "/examples.html"
+      - title: "Middleware Guide"
+        url: "https://github.com/dg0230/libxev-http/blob/main/MIDDLEWARE.md"
+        external: true
+  - title: "Community"
+    links:
+      - title: "GitHub"
+        url: "https://github.com/dg0230/libxev-http"
+        external: true
+      - title: "Issues"
+        url: "https://github.com/dg0230/libxev-http/issues"
+        external: true
+      - title: "Discussions"
+        url: "https://github.com/dg0230/libxev-http/discussions"
+        external: true
+
+# Site metadata
+lang: en
+timezone: UTC
+
+# Performance optimizations
+sass:
+  style: compressed
+
+# Security
+webrick:
+  headers:
+    X-Frame-Options: DENY
+    X-Content-Type-Options: nosniff
+    X-XSS-Protection: "1; mode=block"
+    Referrer-Policy: "strict-origin-when-cross-origin"
