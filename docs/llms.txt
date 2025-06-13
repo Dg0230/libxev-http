@@ -1,0 +1,424 @@
+# libxev-http
+
+> High-performance async HTTP framework for Zig built on top of libxev with built-in protection and middleware support
+
+## What is libxev-http?
+
+libxev-http is a modern HTTP framework for the Zig programming language that provides:
+- High-performance async I/O using libxev
+- Built-in security protections (timeouts, request validation, size limits)
+- Comprehensive middleware system
+- Thread pool integration
+- Memory-safe operations with Zig's allocator system
+
+## Quick Start
+
+```zig
+const std = @import("std");
+const libxev_http = @import("libxev-http");
+
+pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    var server = try libxev_http.createServer(allocator, "127.0.0.1", 8080);
+    defer server.deinit();
+
+    _ = try server.get("/", indexHandler);
+    _ = try server.get("/api/users/:id", getUserHandler);
+    _ = try server.post("/api/users", createUserHandler);
+
+    try server.listen();
+}
+
+fn indexHandler(ctx: *libxev_http.Context) !void {
+    try ctx.html("<h1>Welcome to libxev-http!</h1>");
+}
+
+fn getUserHandler(ctx: *libxev_http.Context) !void {
+    const user_id = ctx.getParam("id") orelse "unknown";
+    const response = try std.fmt.allocPrint(ctx.allocator,
+        "{{\"user_id\":\"{s}\",\"name\":\"User {s}\"}}", .{ user_id, user_id });
+    defer ctx.allocator.free(response);
+    try ctx.json(response);
+}
+
+fn createUserHandler(ctx: *libxev_http.Context) !void {
+    const body = ctx.getBody() orelse "{}";
+    // Process user creation...
+    ctx.status(.created);
+    try ctx.json("{\"message\":\"User created successfully\"}");
+}
+```
+
+## Core API
+
+### Server Creation
+- `createServer(allocator, host, port)` - Create basic HTTP server
+- `createServerWithConfig(allocator, host, port, config)` - Create server with custom configuration
+
+### Route Registration
+- `server.get(path, handler)` - Register GET route
+- `server.post(path, handler)` - Register POST route
+- `server.put(path, handler)` - Register PUT route
+- `server.delete(path, handler)` - Register DELETE route
+- `server.patch(path, handler)` - Register PATCH route
+- `server.head(path, handler)` - Register HEAD route
+- `server.options(path, handler)` - Register OPTIONS route
+
+### URL Patterns
+- `/users/:id` - Single parameter
+- `/users/:id/posts/:postId` - Multiple parameters
+- `/static/*` - Wildcard/catch-all
+
+### Context Methods
+**Request Information:**
+- `ctx.getMethod()` - Get HTTP method
+- `ctx.getPath()` - Get request path
+- `ctx.getHeader(name)` - Get header value
+- `ctx.getParam(name)` - Get URL parameter
+- `ctx.getQuery(name)` - Get query parameter
+- `ctx.getBody()` - Get request body
+
+**Response Methods:**
+- `ctx.status(code)` - Set status code (.ok, .created, .bad_request, etc.)
+- `ctx.setHeader(name, value)` - Set response header
+- `ctx.json(data)` - Send JSON response
+- `ctx.html(content)` - Send HTML response
+- `ctx.text(content)` - Send plain text response
+- `ctx.file(path)` - Send file response
+
+### Middleware System
+
+**Middleware Function Signature:**
+```zig
+fn middleware(ctx: *libxev_http.Context, next: libxev_http.NextFn) !void {
+    // Pre-processing
+    try next(ctx); // Call next middleware/handler
+    // Post-processing
+}
+```
+
+**Global Middleware:**
+```zig
+try server.use("name", middlewareFunction);
+```
+
+**Route-Specific Middleware:**
+```zig
+const route = try server.get("/protected", handler);
+try route.use("auth", authMiddleware);
+```
+
+**Built-in Middleware:**
+- `libxev_http.loggingMiddleware` - Request logging
+- `libxev_http.requestIdMiddleware` - Request ID generation
+- `libxev_http.corsMiddleware` - CORS headers
+- `libxev_http.securityHeadersMiddleware` - Security headers
+- `libxev_http.compressionMiddleware` - Response compression
+
+### Configuration
+
+```zig
+const config = libxev_http.HttpConfig{
+    .connection_timeout_ms = 30000,      // Connection timeout
+    .request_timeout_ms = 30000,         // Request timeout
+    .header_timeout_ms = 10000,          // Header parsing timeout
+    .body_timeout_ms = 60000,            // Body reading timeout
+    .idle_timeout_ms = 5000,             // Keep-alive timeout
+    .max_request_size = 1024 * 1024,     // Max request size (1MB)
+    .max_body_size = 10 * 1024 * 1024,   // Max body size (10MB)
+    .enable_request_validation = true,    // Enable input validation
+    .enable_timeout_protection = true,    // Enable timeout protection
+    .enable_keep_alive = true,           // Enable HTTP keep-alive
+};
+```
+
+## Common Patterns
+
+### REST API
+```zig
+// CRUD operations
+_ = try server.get("/api/users", listUsers);
+_ = try server.get("/api/users/:id", getUser);
+_ = try server.post("/api/users", createUser);
+_ = try server.put("/api/users/:id", updateUser);
+_ = try server.delete("/api/users/:id", deleteUser);
+```
+
+### Authentication Middleware
+```zig
+fn authMiddleware(ctx: *libxev_http.Context, next: libxev_http.NextFn) !void {
+    const auth_header = ctx.getHeader("Authorization");
+    if (auth_header == null or !std.mem.startsWith(u8, auth_header.?, "Bearer ")) {
+        ctx.status(.unauthorized);
+        try ctx.json("{\"error\":\"Unauthorized\"}");
+        return;
+    }
+    try next(ctx);
+}
+```
+
+### Error Handling
+```zig
+fn errorHandler(ctx: *libxev_http.Context, next: libxev_http.NextFn) !void {
+    next(ctx) catch |err| {
+        switch (err) {
+            libxev_http.HttpError.RequestTooLarge => {
+                ctx.status(.payload_too_large);
+                try ctx.json("{\"error\":\"Request too large\"}");
+            },
+            libxev_http.HttpError.Timeout => {
+                ctx.status(.request_timeout);
+                try ctx.json("{\"error\":\"Request timeout\"}");
+            },
+            else => {
+                ctx.status(.internal_server_error);
+                try ctx.json("{\"error\":\"Internal server error\"}");
+            },
+        }
+    };
+}
+```
+
+### File Upload
+```zig
+fn uploadHandler(ctx: *libxev_http.Context) !void {
+    const content_length = ctx.getHeader("Content-Length");
+    if (content_length == null) {
+        ctx.status(.bad_request);
+        try ctx.json("{\"error\":\"Content-Length header required\"}");
+        return;
+    }
+
+    const body = ctx.getBody() orelse "";
+    // Process file upload...
+
+    ctx.status(.created);
+    try ctx.json("{\"message\":\"File uploaded successfully\"}");
+}
+```
+
+## Key Features
+
+- **High Performance**: Built on libxev for efficient async I/O
+- **Memory Safe**: Leverages Zig's compile-time safety guarantees
+- **Built-in Security**: Timeout protection, request validation, size limits
+- **Flexible Middleware**: Global and route-specific middleware support
+- **Thread Pool**: Integrated with libxev's thread pool for blocking operations
+- **Zero Dependencies**: Minimal external dependencies beyond libxev
+- **Production Ready**: Comprehensive error handling and logging
+
+## Error Types
+
+- `HttpError.RequestTooLarge` - Request exceeds size limits
+- `HttpError.Timeout` - Request timeout exceeded
+- `HttpError.InvalidRequest` - Malformed HTTP request
+- `HttpError.MethodNotAllowed` - HTTP method not supported for route
+- `HttpError.NotFound` - Route not found
+
+## Memory Management
+
+Always use the provided allocator for dynamic allocations:
+
+```zig
+fn handler(ctx: *libxev_http.Context) !void {
+    const response = try std.fmt.allocPrint(ctx.allocator,
+        "{{\"message\":\"{s}\"}}", .{"Hello"});
+    defer ctx.allocator.free(response);
+    try ctx.json(response);
+}
+```
+
+## Advanced Usage
+
+### Custom Middleware Chain
+```zig
+// Setup middleware in order of execution
+try server.use("error-handler", errorHandlerMiddleware);
+try server.use("logging", libxev_http.loggingMiddleware);
+try server.use("request-id", libxev_http.requestIdMiddleware);
+try server.use("security", libxev_http.securityHeadersMiddleware);
+try server.use("cors", libxev_http.corsMiddleware);
+try server.use("auth", authMiddleware);
+```
+
+### Production Configuration
+```zig
+const config = libxev_http.HttpConfig{
+    .connection_timeout_ms = 30000,
+    .request_timeout_ms = 30000,
+    .header_timeout_ms = 10000,
+    .body_timeout_ms = 60000,
+    .idle_timeout_ms = 5000,
+    .max_request_size = 1024 * 1024,
+    .max_body_size = 10 * 1024 * 1024,
+    .enable_request_validation = true,
+    .enable_timeout_protection = true,
+    .enable_keep_alive = true,
+};
+
+var server = try libxev_http.createServerWithConfig(
+    allocator, "0.0.0.0", 8080, config);
+```
+
+### Static File Serving
+```zig
+fn staticFileHandler(ctx: *libxev_http.Context) !void {
+    const path = ctx.getPath();
+    const file_path = path[8..]; // Remove '/static/' prefix
+
+    // Security: prevent directory traversal
+    if (std.mem.indexOf(u8, file_path, "..") != null) {
+        ctx.status(.forbidden);
+        try ctx.json("{\"error\":\"Access denied\"}");
+        return;
+    }
+
+    try ctx.file(file_path);
+}
+```
+
+### Health Check Endpoint
+```zig
+fn healthHandler(ctx: *libxev_http.Context) !void {
+    const health_data = try std.fmt.allocPrint(ctx.allocator,
+        "{{\"status\":\"healthy\",\"timestamp\":{d},\"uptime\":\"running\"}}",
+        .{std.time.timestamp()});
+    defer ctx.allocator.free(health_data);
+    try ctx.json(health_data);
+}
+```
+
+### Rate Limiting Middleware
+```zig
+fn rateLimitMiddleware(ctx: *libxev_http.Context, next: libxev_http.NextFn) !void {
+    // Simple rate limiting example
+    try ctx.setHeader("X-RateLimit-Limit", "100");
+    try ctx.setHeader("X-RateLimit-Remaining", "99");
+    try next(ctx);
+}
+```
+
+## Testing
+
+### Basic Test Setup
+```zig
+const testing = std.testing;
+
+test "basic server creation" {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    var server = try libxev_http.createServer(allocator, "127.0.0.1", 8080);
+    defer server.deinit();
+
+    // Test route registration
+    _ = try server.get("/test", testHandler);
+}
+
+fn testHandler(ctx: *libxev_http.Context) !void {
+    try ctx.json("{\"test\":\"success\"}");
+}
+```
+
+## Performance Tips
+
+1. **Use appropriate timeouts**: Configure timeouts based on your use case
+2. **Leverage middleware order**: Place authentication before business logic
+3. **Memory management**: Always use defer for cleanup
+4. **Static content**: Use dedicated static file serving for assets
+5. **Connection pooling**: Enable keep-alive for better performance
+6. **Request validation**: Use built-in validation to prevent malformed requests
+
+## Common HTTP Status Codes
+
+- `.ok` (200) - Success
+- `.created` (201) - Resource created
+- `.no_content` (204) - Success with no content
+- `.bad_request` (400) - Invalid request
+- `.unauthorized` (401) - Authentication required
+- `.forbidden` (403) - Access denied
+- `.not_found` (404) - Resource not found
+- `.method_not_allowed` (405) - HTTP method not allowed
+- `.payload_too_large` (413) - Request too large
+- `.internal_server_error` (500) - Server error
+
+## Security Best Practices
+
+1. **Input Validation**: Always validate user input
+2. **Timeout Protection**: Use appropriate timeout values
+3. **Size Limits**: Set reasonable request/body size limits
+4. **Security Headers**: Use security headers middleware
+5. **Authentication**: Implement proper authentication middleware
+6. **HTTPS**: Use HTTPS in production (configure at reverse proxy level)
+
+## Integration Examples
+
+### With Database
+```zig
+fn getUserFromDB(ctx: *libxev_http.Context) !void {
+    const user_id = ctx.getParam("id") orelse {
+        ctx.status(.bad_request);
+        try ctx.json("{\"error\":\"User ID required\"}");
+        return;
+    };
+
+    // Database lookup (pseudo-code)
+    const user = database.findUser(user_id) catch |err| switch (err) {
+        error.NotFound => {
+            ctx.status(.not_found);
+            try ctx.json("{\"error\":\"User not found\"}");
+            return;
+        },
+        else => return err,
+    };
+
+    const response = try std.fmt.allocPrint(ctx.allocator,
+        "{{\"id\":\"{s}\",\"name\":\"{s}\"}}", .{ user.id, user.name });
+    defer ctx.allocator.free(response);
+    try ctx.json(response);
+}
+```
+
+### With JSON Parsing
+```zig
+fn createUser(ctx: *libxev_http.Context) !void {
+    const body = ctx.getBody() orelse {
+        ctx.status(.bad_request);
+        try ctx.json("{\"error\":\"Request body required\"}");
+        return;
+    };
+
+    // Parse JSON (using std.json or external library)
+    var parsed = std.json.parseFromSlice(UserData, ctx.allocator, body) catch {
+        ctx.status(.bad_request);
+        try ctx.json("{\"error\":\"Invalid JSON\"}");
+        return;
+    };
+    defer parsed.deinit();
+
+    // Process user creation...
+    ctx.status(.created);
+    try ctx.json("{\"message\":\"User created\"}");
+}
+```
+
+## Repository
+
+GitHub: https://github.com/dg0230/libxev-http
+Documentation: https://dg0230.github.io/libxev-http/
+License: MIT
+
+## Dependencies
+
+- **libxev**: Cross-platform event loop library
+- **Zig Standard Library**: Built-in Zig standard library
+
+## Compatibility
+
+- **Zig Version**: 0.14.0 or later
+- **Platforms**: Linux, macOS, Windows (via libxev support)
+- **Architecture**: x86_64, ARM64
